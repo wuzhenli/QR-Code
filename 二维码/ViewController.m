@@ -16,6 +16,9 @@
     UINavigationControllerDelegate, 
     UIImagePickerControllerDelegate
 >
+@property (assign, nonatomic) CGRect originInterestRect;
+
+
 @property (weak, nonatomic) IBOutlet UITabBar *customBar;
 
 @property (strong, nonatomic) NSLayoutConstraint *containerHeightConstraint;
@@ -60,21 +63,26 @@
             });
         }
     }];
-    
 }
+
 
 // 界面显示,开始动画
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     
+    if (_session && _session.isRunning == NO) {
+        [_session startRunning];
+    }
     [self startAnimation];
 }
 
 //注意，在界面消失的时候关闭session
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
     
-    [self.session stopRunning];
+    if (_session && _session.isRunning) {
+        [_session stopRunning];
+    }
     [self removeAnimation];
     [self clearLayers];
 }
@@ -101,6 +109,11 @@
 }
 
 - (void)setupUI {
+    CGFloat h = 300;
+    CGFloat y = ([UIScreen mainScreen].bounds.size.height - h ) * 0.5;
+    CGFloat x = ([UIScreen mainScreen].bounds.size.width - h ) * 0.5;
+    self.originInterestRect = CGRectMake(x, y, h, h);
+    
     [self.customContainerView addSubview:self.imgViewBorder];
     [self.imgViewBorder mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(self.customContainerView);
@@ -124,20 +137,16 @@
 }
 
 /*---------------------------- 分割线 ---------------------------- */
-- (void)initScan
-{
+- (void)initScan {
     // 1.判断输入能否添加到会话中
     if (![self.session canAddInput:self.input]) {
-        NSLog(@"add input error");
-        return;
-    }
+        NSLog(@"canAddInput error");
+        return;  
+    } 
     [self.session addInput:self.input];
     
     // 2.判断输出能够添加到会话中
-    if (![self.session canAddOutput:self.output]) {
-        NSLog(@"cant add output");
-        return;
-    }
+    if (![self.session canAddOutput:self.output]) return;
     [self.session addOutput:self.output];
     
     // 4.设置输出能够解析的数据类型
@@ -149,35 +158,35 @@
     
     // 6.添加预览图层
     [self.view.layer insertSublayer:self.previewLayer atIndex:0];
-    self.previewLayer.frame = self.view.bounds;
+    CGRect frame = self.view.bounds;
+    frame = [UIScreen mainScreen].bounds;
+    self.previewLayer.frame = frame;
     // self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
     
     // 7.添加容器图层
     [self.view.layer addSublayer:self.containerLayer];
-    self.containerLayer.frame = self.view.bounds;
+    self.containerLayer.frame = frame;
 }
 
 #pragma -mark event response
 
 - (IBAction)closeButtonClick:(id)sender {
-    
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
 - (IBAction)openCameralClick:(id)sender {
-    
     // 1.判断相册是否可以打开
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) return;
     // 2. 创建图片选择控制器
     UIImagePickerController *ipc = [[UIImagePickerController alloc] init];
-    
     ipc.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    
     // 4.设置代理
     ipc.delegate = self;
-    
     // 5.modal出这个控制器
     [self presentViewController:ipc animated:YES completion:nil];
 }
+
+
 
 #pragma mark -------- UIImagePickerControllerDelegate---------
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info
@@ -211,42 +220,36 @@
 
 #pragma mark --------AVCaptureMetadataOutputObjectsDelegate ---------
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection
-{
-    
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
   //  if (metadataObjects.count > 0) {
         // id 类型不能点语法,所以要先去取出数组中对象
     AVMetadataMachineReadableCodeObject *object = [metadataObjects lastObject];
-    
     if (object == nil) return;
+    if ([object isKindOfClass:[AVMetadataFaceObject class]]) {
+        NSLog(@"扫描非字符串 ：%@",object);
+        return;
+    }
     // 只要扫描到结果就会调用
     self.customLabel.text = object.stringValue;
-
     [self clearLayers];
     
    // [self.previewLayer removeFromSuperlayer];
-    
     // 2.对扫描到的二维码进行描边
     AVMetadataMachineReadableCodeObject *obj = (AVMetadataMachineReadableCodeObject *)[self.previewLayer transformedMetadataObjectForMetadataObject:object];
-    
     [self drawLine:obj];
     // 停止扫描
     [self.session stopRunning];
     [self removeAnimation];
-//        
 //        // 将预览图层移除
 //        [self.previewLayer removeFromSuperlayer];
 //    } else {
 //        NSLog(@"没有扫描到数据");
 //    }
-
 }
 
 // 绘制描边
-- (void)drawLine:(AVMetadataMachineReadableCodeObject *)objc
-{
+- (void)drawLine:(AVMetadataMachineReadableCodeObject *)objc {
     NSArray *array = objc.corners;
-    
     // 1.创建形状图层, 用于保存绘制的矩形
     CAShapeLayer *layer = [[CAShapeLayer alloc] init];
 
@@ -290,13 +293,11 @@
 
 
 // 开启冲击波动画
-- (void)startAnimation
-{
+- (void)startAnimation {
     // 1.设置冲击波底部和容器视图顶部对齐
     self.scanLineTopConstraint.constant = - self.containerHeightConstraint.constant;
     // 刷新UI
     [self.view layoutIfNeeded];
-    
     // 2.执行扫描动画
     [UIView animateWithDuration:1.0 animations:^{
         // 无线重复动画
@@ -337,32 +338,28 @@
 }
 
 #pragma mark -------- 懒加载---------
-- (AVCaptureDevice *)device
-{
+- (AVCaptureDevice *)device {
     if (_device == nil) {
         _device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     }
     return _device;
 }
 
-- (AVCaptureDeviceInput *)input
-{
+- (AVCaptureDeviceInput *)input {
     if (_input == nil) {
         _input = [AVCaptureDeviceInput deviceInputWithDevice:self.device error:nil];
     }
     return _input;
 }
 
-- (AVCaptureSession *)session
-{
+- (AVCaptureSession *)session {
     if (_session == nil) {
         _session = [[AVCaptureSession alloc] init];
     }
     return _session;
 }
 
-- (AVCaptureVideoPreviewLayer *)previewLayer
-{
+- (AVCaptureVideoPreviewLayer *)previewLayer {
     if (_previewLayer == nil) {
         _previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     }
@@ -382,7 +379,7 @@
         // 1.获取屏幕的frame
         CGRect viewRect = self.view.frame;
         // 2.获取扫描容器的frame
-        CGRect containerRect = self.customContainerView.frame;
+        CGRect containerRect = self.originInterestRect;
         
         CGFloat x = containerRect.origin.y / viewRect.size.height;
         CGFloat y = containerRect.origin.x / viewRect.size.width;
@@ -396,8 +393,7 @@
     return _output;
 }
 
-- (CALayer *)containerLayer
-{
+- (CALayer *)containerLayer {
     if (_containerLayer == nil) {
         _containerLayer = [[CALayer alloc] init];
     }
@@ -410,11 +406,13 @@
         [self.view addSubview:_customContainerView];
         __block MASConstraint *consH = nil;
         [_customContainerView mas_makeConstraints:^(MASConstraintMaker *make) {
-            consH = make.height.mas_equalTo(300);
-            make.width.mas_equalTo(300);
-            make.center.equalTo(self.view);
+            consH = make.height.mas_equalTo(self.originInterestRect.size.height);
+            make.width.mas_equalTo(self.originInterestRect.size.width);
+            make.left.offset(self.originInterestRect.origin.x);
+            make.top.offset(self.originInterestRect.origin.y);
         }];
         self.containerHeightConstraint = [consH valueForKey:@"layoutConstraint"];
+        _customContainerView.layer.masksToBounds = YES;
     }
     return _customContainerView;
 }

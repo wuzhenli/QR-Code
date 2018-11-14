@@ -46,12 +46,21 @@
                                     <action selector="closeButtonClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7YJ-Zy-xS6"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tGY-Ct-2Ye">
+                                <rect key="frame" x="26" y="563" width="77" height="30"/>
+                                <state key="normal" title="我的二维码"/>
+                                <connections>
+                                    <segue destination="BbA-8A-pkV" kind="show" id="Jqm-1Q-hEk"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.37422909789999997" green="1" blue="0.93018481679999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="jyf-0H-KpI" secondAttribute="trailing" id="EHb-qv-5fe"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="jyf-0H-KpI" secondAttribute="bottom" id="VyX-XP-Ja5"/>
                             <constraint firstItem="jyf-0H-KpI" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="aot-ky-Ctm"/>
+                            <constraint firstItem="tGY-Ct-2Ye" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="u5m-mm-WQf"/>
+                            <constraint firstItem="jyf-0H-KpI" firstAttribute="top" secondItem="tGY-Ct-2Ye" secondAttribute="bottom" constant="25" id="yXX-QG-x4D"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="扫一扫" id="335-Ao-WzX">
@@ -63,7 +72,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1335" y="125"/>
+            <point key="canvasLocation" x="1406" y="152"/>
         </scene>
         <!--Code Create View Controller-->
         <scene sceneID="VlM-4Z-nbs">
@@ -97,7 +106,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6Xw-3T-PhF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2206" y="111"/>
+            <point key="canvasLocation" x="2156" y="152"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="JGw-Hx-naZ">

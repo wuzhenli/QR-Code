@@ -25,8 +25,8 @@
     [filter setDefaults];
     
     // 3.设置需要生成二维码的数据到滤镜中
-    // OC中要求设置的是一个二进制数据
-    NSData *data = [@"http://www.jianshu.com/p/05949cc8f7af" dataUsingEncoding:NSUTF8StringEncoding];
+    // OC中要求设置的是一个二进制数据 、 http://www.jianshu.com/p/05949cc8f7af
+    NSData *data = [@"我的二维码" dataUsingEncoding:NSUTF8StringEncoding];
     [filter setValue:data forKeyPath:@"InputMessage"];
     
     // 4.从滤镜从取出生成好的二维码图片
