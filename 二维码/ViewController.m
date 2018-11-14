@@ -23,10 +23,12 @@
 @property ( strong , nonatomic ) AVCaptureMetadataOutput * output;
 @property ( strong , nonatomic ) AVCaptureSession * session;
 @property ( strong , nonatomic ) AVCaptureVideoPreviewLayer * previewLayer;
-
 /*** 专门用于保存描边的图层 ***/
 @property (nonatomic,strong) CALayer *containerLayer;
+@property (strong, nonatomic) UILabel *lblNoAhtuorization;
+
 @end
+
 
 @implementation ViewController
 
@@ -36,9 +38,89 @@
     self.customBar.selectedItem = self.customBar.items.firstObject;
     self.customBar.delegate = self;
 
-    // 3.开始扫描二维码
-    [self startScan];
+    [self checkCameraAuthorizationCompletion:^(BOOL granted) {
+        if (granted) {
+            // 3.开始扫描二维码
+            [self initScan];
+            // 8.开始扫描
+            [self.session startRunning];
+        } else {
+            // tip
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self showNoCameraAuthorizationTip];
+            });
+        }
+    }];
+    
 }
+
+// 界面显示,开始动画
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
+    [self startAnimation];
+}
+
+//注意，在界面消失的时候关闭session
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    [self.session stopRunning];
+    [self removeAnimation];
+    [self clearLayers];
+}
+
+- (void)checkCameraAuthorizationCompletion:(void(^)(BOOL granted))completion {
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    switch (status) {
+        case AVAuthorizationStatusNotDetermined: {
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    !completion ? : completion(granted);
+                });
+            }];
+            break;
+        }
+        case AVAuthorizationStatusRestricted:
+        case AVAuthorizationStatusDenied:
+            completion(NO);
+            break;
+        case AVAuthorizationStatusAuthorized:
+            completion(YES);
+            break;
+    }
+}
+
+/*---------------------------- 分割线 ---------------------------- */
+- (void)initScan
+{
+    // 1.判断输入能否添加到会话中
+    if (![self.session canAddInput:self.input]) return;
+    [self.session addInput:self.input];
+    
+    // 2.判断输出能够添加到会话中
+    if (![self.session canAddOutput:self.output]) return;
+    [self.session addOutput:self.output];
+    
+    // 4.设置输出能够解析的数据类型
+    // 注意点: 设置数据类型一定要在输出对象添加到会话之后才能设置
+    self.output.metadataObjectTypes = self.output.availableMetadataObjectTypes;
+    
+    // 5.设置监听监听输出解析到的数据
+    [self.output setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+    
+    // 6.添加预览图层
+    [self.view.layer insertSublayer:self.previewLayer atIndex:0];
+    self.previewLayer.frame = self.view.bounds;
+    // self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    
+    // 7.添加容器图层
+    [self.view.layer addSublayer:self.containerLayer];
+    self.containerLayer.frame = self.view.bounds;
+}
+
+#pragma -mark event response
+
 - (IBAction)closeButtonClick:(id)sender {
     
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -86,6 +168,134 @@
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
+
+
+
+#pragma mark --------AVCaptureMetadataOutputObjectsDelegate ---------
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection
+{
+    
+  //  if (metadataObjects.count > 0) {
+        // id 类型不能点语法,所以要先去取出数组中对象
+    AVMetadataMachineReadableCodeObject *object = [metadataObjects lastObject];
+    
+    if (object == nil) return;
+    // 只要扫描到结果就会调用
+    self.customLabel.text = object.stringValue;
+
+    [self clearLayers];
+    
+   // [self.previewLayer removeFromSuperlayer];
+    
+    // 2.对扫描到的二维码进行描边
+    AVMetadataMachineReadableCodeObject *obj = (AVMetadataMachineReadableCodeObject *)[self.previewLayer transformedMetadataObjectForMetadataObject:object];
+    
+    [self drawLine:obj];
+    // 停止扫描
+    [self.session stopRunning];
+    [self removeAnimation];
+//        
+//        // 将预览图层移除
+//        [self.previewLayer removeFromSuperlayer];
+//    } else {
+//        NSLog(@"没有扫描到数据");
+//    }
+
+}
+
+// 绘制描边
+- (void)drawLine:(AVMetadataMachineReadableCodeObject *)objc
+{
+    NSArray *array = objc.corners;
+    
+    // 1.创建形状图层, 用于保存绘制的矩形
+    CAShapeLayer *layer = [[CAShapeLayer alloc] init];
+
+    // 设置线宽
+    layer.lineWidth = 2;
+    layer.strokeColor = [UIColor greenColor].CGColor;
+    layer.fillColor = [UIColor clearColor].CGColor;
+
+    // 2.创建UIBezierPath, 绘制矩形
+    UIBezierPath *path = [[UIBezierPath alloc] init];
+    CGPoint point = CGPointZero;
+    int index = 0;
+    
+    CFDictionaryRef dict = (__bridge CFDictionaryRef)(array[index++]);
+    // 把点转换为不可变字典
+    // 把字典转换为点，存在point里，成功返回true 其他false
+    CGPointMakeWithDictionaryRepresentation(dict, &point);
+    
+    [path moveToPoint:point];
+    
+    // 2.2连接其它线段
+    for (int i = 1; i<array.count; i++) {
+        CGPointMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)array[i], &point);
+        [path addLineToPoint:point];
+    }
+    // 2.3关闭路径
+    [path closePath];
+    
+    layer.path = path.CGPath;
+    // 3.将用于保存矩形的图层添加到界面上
+    [self.containerLayer addSublayer:layer];
+    
+}
+
+- (void)clearLayers {
+    if (self.containerLayer.sublayers) {
+        for (CALayer *subLayer in self.containerLayer.sublayers)
+            [subLayer removeFromSuperlayer];
+    }
+}
+
+
+// 开启冲击波动画
+- (void)startAnimation
+{
+    // 1.设置冲击波底部和容器视图顶部对齐
+    self.scanLineTopConstraint.constant = - self.containerHeightConstraint.constant;
+    // 刷新UI
+    [self.view layoutIfNeeded];
+    
+    // 2.执行扫描动画
+    [UIView animateWithDuration:1.0 animations:^{
+        // 无线重复动画
+        [UIView setAnimationRepeatCount:MAXFLOAT];
+        self.scanLineTopConstraint.constant = self.containerHeightConstraint.constant;
+        // 刷新UI
+        [self.view layoutIfNeeded];
+    } completion:nil];
+}
+
+- (void)removeAnimation {
+    // 移除动画
+    [self.scanLineImageView.layer removeAllAnimations];
+}
+
+- (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item
+{
+    // 根据当前选中的按钮重新设置二维码容器高度
+    self.containerHeightConstraint.constant = item.tag == 1 ? 150 : 300;
+    // 刷新UI
+    [self.view layoutIfNeeded];
+    
+    [self removeAnimation];
+    [self startAnimation];
+}
+
+- (void)showNoCameraAuthorizationTip {
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSDictionary *info = [bundle infoDictionary];
+    NSString *prodName = [info objectForKey:@"CFBundleDisplayName"];
+    
+    NSString *tipText = [NSString stringWithFormat:@"请在 iPhone 的\"设置-隐私-相机\"选项中，允许\"%@\"访问你的相机", prodName];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:tipText preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        ;
+    }]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
 
 #pragma mark -------- 懒加载---------
 - (AVCaptureDevice *)device
@@ -140,8 +350,8 @@
         CGFloat width = containerRect.size.height / viewRect.size.height;
         CGFloat height = containerRect.size.width / viewRect.size.width;
         
-       // CGRect outRect = CGRectMake(x, y, width, height);
-       // [_output rectForMetadataOutputRectOfInterest:outRect];
+        // CGRect outRect = CGRectMake(x, y, width, height);
+        // [_output rectForMetadataOutputRectOfInterest:outRect];
         _output.rectOfInterest = CGRectMake(x, y, width, height);
     }
     return _output;
@@ -154,161 +364,7 @@
     }
     return _containerLayer;
 }
-/*---------------------------- 分割线 ---------------------------- */
-- (void)startScan
-{
-    // 1.判断输入能否添加到会话中
-    if (![self.session canAddInput:self.input]) return;
-    [self.session addInput:self.input];
-
-    
-    // 2.判断输出能够添加到会话中
-    if (![self.session canAddOutput:self.output]) return;
-    [self.session addOutput:self.output];
-    
-    // 4.设置输出能够解析的数据类型
-    // 注意点: 设置数据类型一定要在输出对象添加到会话之后才能设置
-    self.output.metadataObjectTypes = self.output.availableMetadataObjectTypes;
 
 
-    // 5.设置监听监听输出解析到的数据
-    [self.output setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
- 
-    // 6.添加预览图层
-    [self.view.layer insertSublayer:self.previewLayer atIndex:0];
-    self.previewLayer.frame = self.view.bounds;
-   // self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    
-    // 7.添加容器图层
-    [self.view.layer addSublayer:self.containerLayer];
-    self.containerLayer.frame = self.view.bounds;
-    
-    // 8.开始扫描
-    [self.session startRunning];
-}
-
-#pragma mark --------AVCaptureMetadataOutputObjectsDelegate ---------
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection
-{
-    
-  //  if (metadataObjects.count > 0) {
-        // id 类型不能点语法,所以要先去取出数组中对象
-        AVMetadataMachineReadableCodeObject *object = [metadataObjects lastObject];
-        
-        if (object == nil) return;
-        // 只要扫描到结果就会调用
-        self.customLabel.text = object.stringValue;
-
-        [self clearLayers];
-        
-       // [self.previewLayer removeFromSuperlayer];
-        
-        // 2.对扫描到的二维码进行描边
-        AVMetadataMachineReadableCodeObject *obj = (AVMetadataMachineReadableCodeObject *)[self.previewLayer transformedMetadataObjectForMetadataObject:object];
-        
-        [self drawLine:obj];
-        // 停止扫描
-//        [self.session stopRunning];
-//        
-//        // 将预览图层移除
-//        [self.previewLayer removeFromSuperlayer];
-//    } else {
-//        NSLog(@"没有扫描到数据");
-//    }
-
-}
-
-// 绘制描边
-- (void)drawLine:(AVMetadataMachineReadableCodeObject *)objc
-{
-    NSArray *array = objc.corners;
-    
-    // 1.创建形状图层, 用于保存绘制的矩形
-    CAShapeLayer *layer = [[CAShapeLayer alloc] init];
-
-    // 设置线宽
-    layer.lineWidth = 2;
-    layer.strokeColor = [UIColor greenColor].CGColor;
-    layer.fillColor = [UIColor clearColor].CGColor;
-
-    // 2.创建UIBezierPath, 绘制矩形
-    UIBezierPath *path = [[UIBezierPath alloc] init];
-    CGPoint point = CGPointZero;
-    int index = 0;
-    
-    CFDictionaryRef dict = (__bridge CFDictionaryRef)(array[index++]);
-    // 把点转换为不可变字典
-    // 把字典转换为点，存在point里，成功返回true 其他false
-    CGPointMakeWithDictionaryRepresentation(dict, &point);
-    
-    [path moveToPoint:point];
-    
-    // 2.2连接其它线段
-    for (int i = 1; i<array.count; i++) {
-        CGPointMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)array[i], &point);
-        [path addLineToPoint:point];
-    }
-    // 2.3关闭路径
-    [path closePath];
-    
-    layer.path = path.CGPath;
-    // 3.将用于保存矩形的图层添加到界面上
-    [self.containerLayer addSublayer:layer];
-    
-}
-
-- (void)clearLayers
-{
-    if (self.containerLayer.sublayers)
-    {
-        for (CALayer *subLayer in self.containerLayer.sublayers)
-        {
-            [subLayer removeFromSuperlayer];
-        }
-    }
-}
-
-//注意，在界面消失的时候关闭session
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillDisappear:animated];
-    [self.session stopRunning];
-}
-
-// 界面显示,开始动画
-- (void)viewDidAppear:(BOOL)animated{
-    [super viewDidAppear:animated];
-    [self startAnimation];
-}
-
-// 开启冲击波动画
-- (void)startAnimation
-{
-    // 1.设置冲击波底部和容器视图顶部对齐
-    self.scanLineTopConstraint.constant = - self.containerHeightConstraint.constant;
-    // 刷新UI
-    [self.view layoutIfNeeded];
-    
-    // 2.执行扫描动画
-    [UIView animateWithDuration:1.0 animations:^{
-        // 无线重复动画
-        [UIView setAnimationRepeatCount:MAXFLOAT];
-        self.scanLineTopConstraint.constant = self.containerHeightConstraint.constant;
-        // 刷新UI
-        [self.view layoutIfNeeded];
-    } completion:nil];
-}
-- (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item
-{
-    // 根据当前选中的按钮重新设置二维码容器高度
-    self.containerHeightConstraint.constant = item.tag == 1 ? 150 : 300;
-    // 刷新UI
-    [self.view layoutIfNeeded];
-    
-    // 移除动画
-    [self.scanLineImageView.layer removeAllAnimations];
-    
-    [self startAnimation];
-}
 
 @end

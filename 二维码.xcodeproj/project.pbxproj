@@ -239,7 +239,7 @@
 				TargetAttributes = {
 					58F279DD1C17C0BE00023D29 = {
 						CreatedOnToolsVersion = 7.1;
-						DevelopmentTeam = MAKZ9536RB;
+						DevelopmentTeam = 294Q8452TK;
 					};
 					58F279F61C17C0BE00023D29 = {
 						CreatedOnToolsVersion = 7.1;
@@ -488,9 +488,10 @@
 			baseConfigurationReference = D1B4F02AB52C0825A3115BF6 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 294Q8452TK;
 				INFOPLIST_FILE = "二维码/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.110.---";
+				PRODUCT_BUNDLE_IDENTIFIER = com.6rooms.www.qrtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -500,9 +501,10 @@
 			baseConfigurationReference = E194BCE408FBDB3F9A160A95 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 294Q8452TK;
 				INFOPLIST_FILE = "二维码/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.110.---";
+				PRODUCT_BUNDLE_IDENTIFIER = com.6rooms.www.qrtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
