@@ -8,15 +8,23 @@
 
 #import "ViewController.h"
 #import <AVFoundation/AVFoundation.h>
+#import <Masonry.h>
 
-@interface ViewController ()<UITabBarDelegate,AVCaptureMetadataOutputObjectsDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate>
+@interface ViewController ()  < 
+    UITabBarDelegate,
+    AVCaptureMetadataOutputObjectsDelegate,
+    UINavigationControllerDelegate, 
+    UIImagePickerControllerDelegate
+>
 @property (weak, nonatomic) IBOutlet UITabBar *customBar;
-@property (weak, nonatomic) IBOutlet UIImageView *scanLineImageView;
 
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *containerHeightConstraint;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *scanLineTopConstraint;
-@property (weak, nonatomic) IBOutlet UILabel *customLabel;
-@property (weak, nonatomic) IBOutlet UIView *customContainerView;
+@property (strong, nonatomic) NSLayoutConstraint *containerHeightConstraint;
+@property (strong, nonatomic) NSLayoutConstraint *scanLineTopConstraint;
+@property (strong, nonatomic) UILabel *customLabel;
+
+@property (strong, nonatomic) UIView *customContainerView;
+@property (strong, nonatomic) UIImageView *imgViewBorder;
+@property (strong, nonatomic) UIImageView *imgViewScannLine;
 
 @property ( strong , nonatomic ) AVCaptureDevice * device;
 @property ( strong , nonatomic ) AVCaptureDeviceInput * input;
@@ -25,7 +33,7 @@
 @property ( strong , nonatomic ) AVCaptureVideoPreviewLayer * previewLayer;
 /*** 专门用于保存描边的图层 ***/
 @property (nonatomic,strong) CALayer *containerLayer;
-@property (strong, nonatomic) UILabel *lblNoAhtuorization;
+
 
 @end
 
@@ -38,6 +46,7 @@
     self.customBar.selectedItem = self.customBar.items.firstObject;
     self.customBar.delegate = self;
 
+    [self setupUI];
     [self checkCameraAuthorizationCompletion:^(BOOL granted) {
         if (granted) {
             // 3.开始扫描二维码
@@ -91,15 +100,44 @@
     }
 }
 
+- (void)setupUI {
+    [self.customContainerView addSubview:self.imgViewBorder];
+    [self.imgViewBorder mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(self.customContainerView);
+    }];
+    
+//    __block MASConstraint *consH = nil;
+    __block MASConstraint *consTop = nil;
+    [self.customContainerView addSubview:self.imgViewScannLine];
+    [self.imgViewScannLine mas_makeConstraints:^(MASConstraintMaker *make) {
+        consTop = make.top.equalTo(self.customContainerView);
+        make.left.right.equalTo(self.customContainerView);
+        make.height.equalTo(self.customContainerView);
+    }];
+    self.scanLineTopConstraint = [consTop valueForKey:@"layoutConstraint"];
+    
+    [self.view addSubview:self.customLabel];
+    [self.customLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.customContainerView.mas_bottom).offset(20);
+        make.left.right.equalTo(self.customContainerView);
+    }];
+}
+
 /*---------------------------- 分割线 ---------------------------- */
 - (void)initScan
 {
     // 1.判断输入能否添加到会话中
-    if (![self.session canAddInput:self.input]) return;
+    if (![self.session canAddInput:self.input]) {
+        NSLog(@"add input error");
+        return;
+    }
     [self.session addInput:self.input];
     
     // 2.判断输出能够添加到会话中
-    if (![self.session canAddOutput:self.output]) return;
+    if (![self.session canAddOutput:self.output]) {
+        NSLog(@"cant add output");
+        return;
+    }
     [self.session addOutput:self.output];
     
     // 4.设置输出能够解析的数据类型
@@ -172,6 +210,7 @@
 
 
 #pragma mark --------AVCaptureMetadataOutputObjectsDelegate ---------
+
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection
 {
     
@@ -270,7 +309,7 @@
 
 - (void)removeAnimation {
     // 移除动画
-    [self.scanLineImageView.layer removeAllAnimations];
+    [self.imgViewScannLine.layer removeAllAnimations];
 }
 
 - (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item
@@ -365,6 +404,44 @@
     return _containerLayer;
 }
 
+- (UIView *)customContainerView {
+    if (!_customContainerView) {
+        _customContainerView = [UIView new];
+        [self.view addSubview:_customContainerView];
+        __block MASConstraint *consH = nil;
+        [_customContainerView mas_makeConstraints:^(MASConstraintMaker *make) {
+            consH = make.height.mas_equalTo(300);
+            make.width.mas_equalTo(300);
+            make.center.equalTo(self.view);
+        }];
+        self.containerHeightConstraint = [consH valueForKey:@"layoutConstraint"];
+    }
+    return _customContainerView;
+}
+
+- (UIImageView *)imgViewBorder {
+    if (!_imgViewBorder) {
+        _imgViewBorder = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"qrcode_border"]];
+    }
+    return _imgViewBorder;
+}
+
+- (UIImageView *)imgViewScannLine {
+    if (!_imgViewScannLine) {
+        _imgViewScannLine  = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"qrcode_scanline_qrcode"]];
+    }
+    return _imgViewScannLine;
+}
+
+- (UILabel *)customLabel {
+    if (!_customLabel) {
+        _customLabel = [[UILabel alloc] init];
+        _customLabel.textColor = [UIColor blackColor];
+        _customLabel.textAlignment = NSTextAlignmentCenter;
+        _customLabel.font = [UIFont systemFontOfSize:17];
+    }
+    return _customLabel;
+}
 
 
 @end

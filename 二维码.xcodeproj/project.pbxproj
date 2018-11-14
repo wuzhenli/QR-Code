@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		55A45797E727993E5D653711 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E35B5CBE9F8B09BB8CFCBB59 /* libPods.a */; };
 		58ADD13A1C19086100CA73A2 /* QRCodeCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58ADD1391C19086100CA73A2 /* QRCodeCreateViewController.m */; };
 		58F279E31C17C0BE00023D29 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58F279E21C17C0BE00023D29 /* main.m */; };
 		58F279E61C17C0BE00023D29 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58F279E51C17C0BE00023D29 /* AppDelegate.m */; };
@@ -17,6 +16,7 @@
 		58F279FC1C17C0BE00023D29 /* ___Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 58F279FB1C17C0BE00023D29 /* ___Tests.m */; };
 		58F27A071C17C0BE00023D29 /* ___UITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 58F27A061C17C0BE00023D29 /* ___UITests.m */; };
 		58F27A151C17CDAB00023D29 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58F27A141C17CDAB00023D29 /* Main.storyboard */; };
+		F2826B24835CBE8EB5463FB2 /* libPods-二维码.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2920642CF6C46F08883571F /* libPods-二维码.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2033C9FDCE4772F6638922BB /* Pods-二维码.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-二维码.debug.xcconfig"; path = "Pods/Target Support Files/Pods-二维码/Pods-二维码.debug.xcconfig"; sourceTree = "<group>"; };
+		56287EAAD7412E528A57C069 /* Pods-二维码.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-二维码.release.xcconfig"; path = "Pods/Target Support Files/Pods-二维码/Pods-二维码.release.xcconfig"; sourceTree = "<group>"; };
 		58ADD1381C19086100CA73A2 /* QRCodeCreateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRCodeCreateViewController.h; sourceTree = "<group>"; };
 		58ADD1391C19086100CA73A2 /* QRCodeCreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRCodeCreateViewController.m; sourceTree = "<group>"; };
 		58F279DE1C17C0BE00023D29 /* 二维码.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "二维码.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -49,15 +51,13 @@
 		58F279F01C17C0BE00023D29 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		58F279F21C17C0BE00023D29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58F279F71C17C0BE00023D29 /* 二维码Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "二维码Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		58F279FB1C17C0BE00023D29 /* ___Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "___Tests.m"; sourceTree = "<group>"; };
+		58F279FB1C17C0BE00023D29 /* ___Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ___Tests.m; sourceTree = "<group>"; };
 		58F279FD1C17C0BE00023D29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58F27A021C17C0BE00023D29 /* 二维码UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "二维码UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		58F27A061C17C0BE00023D29 /* ___UITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "___UITests.m"; sourceTree = "<group>"; };
+		58F27A061C17C0BE00023D29 /* ___UITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ___UITests.m; sourceTree = "<group>"; };
 		58F27A081C17C0BE00023D29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58F27A141C17CDAB00023D29 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
-		D1B4F02AB52C0825A3115BF6 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
-		E194BCE408FBDB3F9A160A95 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
-		E35B5CBE9F8B09BB8CFCBB59 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2920642CF6C46F08883571F /* libPods-二维码.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-二维码.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,7 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55A45797E727993E5D653711 /* libPods.a in Frameworks */,
+				F2826B24835CBE8EB5463FB2 /* libPods-二维码.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,15 +86,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		557BD7671586CCA13468216B /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				D1B4F02AB52C0825A3115BF6 /* Pods.debug.xcconfig */,
-				E194BCE408FBDB3F9A160A95 /* Pods.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		58F279D51C17C0BE00023D29 = {
 			isa = PBXGroup;
 			children = (
@@ -102,8 +93,8 @@
 				58F279FA1C17C0BE00023D29 /* 二维码Tests */,
 				58F27A051C17C0BE00023D29 /* 二维码UITests */,
 				58F279DF1C17C0BE00023D29 /* Products */,
-				557BD7671586CCA13468216B /* Pods */,
-				EF8772698C19E6561CC55EDC /* Frameworks */,
+				B169C9CB5EDD825E2213C796 /* Pods */,
+				B40EC85E16A8131F33A0869B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -161,10 +152,19 @@
 			path = "二维码UITests";
 			sourceTree = "<group>";
 		};
-		EF8772698C19E6561CC55EDC /* Frameworks */ = {
+		B169C9CB5EDD825E2213C796 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				E35B5CBE9F8B09BB8CFCBB59 /* libPods.a */,
+				2033C9FDCE4772F6638922BB /* Pods-二维码.debug.xcconfig */,
+				56287EAAD7412E528A57C069 /* Pods-二维码.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		B40EC85E16A8131F33A0869B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D2920642CF6C46F08883571F /* libPods-二维码.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -176,12 +176,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58F27A0B1C17C0BE00023D29 /* Build configuration list for PBXNativeTarget "二维码" */;
 			buildPhases = (
-				6F6CF778FDE8D97CD8DE590D /* Check Pods Manifest.lock */,
+				9A9305C066186ED3A07CF140 /* [CP] Check Pods Manifest.lock */,
 				58F279DA1C17C0BE00023D29 /* Sources */,
 				58F279DB1C17C0BE00023D29 /* Frameworks */,
 				58F279DC1C17C0BE00023D29 /* Resources */,
-				C5CB4C09D5B2BBEA7F6201F1 /* Embed Pods Frameworks */,
-				0122C24C616C3BA3D874B468 /* Copy Pods Resources */,
+				AE277B8F310C320B4624A9CB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -301,49 +300,40 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0122C24C616C3BA3D874B468 /* Copy Pods Resources */ = {
+		9A9305C066186ED3A07CF140 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-二维码-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		6F6CF778FDE8D97CD8DE590D /* Check Pods Manifest.lock */ = {
+		AE277B8F310C320B4624A9CB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-二维码/Pods-二维码-resources.sh",
+				"${PODS_ROOT}/SVProgressHUD/SVProgressHUD/SVProgressHUD.bundle",
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SVProgressHUD.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		C5CB4C09D5B2BBEA7F6201F1 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-二维码/Pods-二维码-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -485,7 +475,7 @@
 		};
 		58F27A0C1C17C0BE00023D29 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D1B4F02AB52C0825A3115BF6 /* Pods.debug.xcconfig */;
+			baseConfigurationReference = 2033C9FDCE4772F6638922BB /* Pods-二维码.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 294Q8452TK;
@@ -498,7 +488,7 @@
 		};
 		58F27A0D1C17C0BE00023D29 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E194BCE408FBDB3F9A160A95 /* Pods.release.xcconfig */;
+			baseConfigurationReference = 56287EAAD7412E528A57C069 /* Pods-二维码.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 294Q8452TK;
