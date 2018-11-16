@@ -48,7 +48,8 @@
     
     self.customBar.selectedItem = self.customBar.items.firstObject;
     self.customBar.delegate = self;
-
+    
+    [self setup];
     [self setupUI];
     [self checkCameraAuthorizationCompletion:^(BOOL granted) {
         if (granted) {
@@ -65,6 +66,9 @@
     }];
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 // 界面显示,开始动画
 - (void)viewDidAppear:(BOOL)animated{
@@ -87,27 +91,16 @@
     [self clearLayers];
 }
 
-- (void)checkCameraAuthorizationCompletion:(void(^)(BOOL granted))completion {
-    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    switch (status) {
-        case AVAuthorizationStatusNotDetermined: {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    !completion ? : completion(granted);
-                });
-            }];
-            break;
-        }
-        case AVAuthorizationStatusRestricted:
-        case AVAuthorizationStatusDenied:
-            completion(NO);
-            break;
-        case AVAuthorizationStatusAuthorized:
-            completion(YES);
-            break;
-    }
+- (void)setup {
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(appWillEnterForegroundNotification:) 
+                                                 name:UIApplicationWillEnterForegroundNotification 
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(appDidEnterBackgroundNotification:) 
+                                                 name:UIApplicationDidEnterBackgroundNotification 
+                                               object:nil];
 }
-
 - (void)setupUI {
     CGFloat h = 300;
     CGFloat y = ([UIScreen mainScreen].bounds.size.height - h ) * 0.5;
@@ -186,6 +179,21 @@
     [self presentViewController:ipc animated:YES completion:nil];
 }
 
+- (void)appDidEnterBackgroundNotification:(NSNotification *)notification {
+    if (_session) {
+        [_session stopRunning];
+        [self removeAnimation];
+        [self clearLayers];
+    }
+}
+
+- (void)appWillEnterForegroundNotification:(NSNotification *)notification {
+    if (_session) {
+        [_session startRunning];
+        [self removeAnimation];
+        [self startAnimation];
+    }
+}
 
 
 #pragma mark -------- UIImagePickerControllerDelegate---------
@@ -206,9 +214,12 @@
 
     // 2.3取出探测到的数据
     for (CIQRCodeFeature *result in feature) {
-        NSLog(@"%@",result.messageString);
         NSString *urlStr = result.messageString;
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlStr]];
+        if (urlStr) {
+            NSLog(@"%@",result.messageString);
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlStr]];
+            break;
+        }
     }
     
     // 注意: 如果实现了该方法, 当选中一张图片时系统就不会自动关闭相册控制器
@@ -335,6 +346,29 @@
         ;
     }]];
     [self presentViewController:alert animated:YES completion:nil];
+}
+
+#pragma -mark private
+
+- (void)checkCameraAuthorizationCompletion:(void(^)(BOOL granted))completion {
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    switch (status) {
+        case AVAuthorizationStatusNotDetermined: {
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    !completion ? : completion(granted);
+                });
+            }];
+            break;
+        }
+        case AVAuthorizationStatusRestricted:
+        case AVAuthorizationStatusDenied:
+            completion(NO);
+            break;
+        case AVAuthorizationStatusAuthorized:
+            completion(YES);
+            break;
+    }
 }
 
 #pragma mark -------- 懒加载---------
